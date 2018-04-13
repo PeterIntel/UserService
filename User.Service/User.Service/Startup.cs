@@ -4,10 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using User.Service.Entities;
+using User.Service.Repositories;
 
 namespace User.Service
 {
@@ -23,6 +26,16 @@ namespace User.Service
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            if (Configuration["DATA_STORAGE"] == "remote")
+            {
+                services.AddDbContext<UserDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("UserConnection")));
+                services.AddScoped<IUserRepository, UserRepository>();
+            }
+            else if(Configuration["DATA_STORAGE"] == "local")
+            {
+
+            }
+
             services.AddMvc();
         }
 
