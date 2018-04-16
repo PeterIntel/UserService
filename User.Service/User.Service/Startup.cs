@@ -29,11 +29,11 @@ namespace User.Service
             if (Configuration["DATA_STORAGE"] == "remote")
             {
                 services.AddDbContext<UserDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("UserConnection")));
-                services.AddScoped<IUserRepository, UserRepository>();
+                services.AddScoped<IUserRepository, RemoteUserRepository>();
             }
-            else if(Configuration["DATA_STORAGE"] == "local")
+            else if (Configuration["DATA_STORAGE"] == "local")
             {
-
+                services.AddScoped<IUserRepository, LocalUserRepository>();
             }
 
             services.AddMvc();
