@@ -20,7 +20,7 @@ namespace User.Service.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<UserEntity>> Get()
+        public async Task<IActionResult> Get()
         {
             var users = await _userRepository.GetAll();
 

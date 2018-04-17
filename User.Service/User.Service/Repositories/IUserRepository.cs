@@ -12,7 +12,7 @@ namespace User.Service.Repositories
 
         Task<IActionResult> Delete(Guid id);
 
-        Task<IEnumerable<UserEntity>> GetAll();
+        Task<IActionResult> GetAll();
 
         Task<IActionResult> GetSingle(Guid id);
 

@@ -40,13 +40,20 @@ namespace User.Service.Repositories
 
         public async Task<IActionResult> Add(UserEntity user)
         {
-            var users = await ReadJArray();
-            user.Id = Guid.NewGuid();
-            var newUser = JObject.FromObject(user);
-            users.Add(newUser);
-            await WriteJArray(users);
+            try
+            {
+                var users = await ReadJArray();
+                user.Id = Guid.NewGuid();
+                var newUser = JObject.FromObject(user);
+                users.Add(newUser);
+                await WriteJArray(users);
 
-            return new OkResult();
+                return new OkResult();
+            }
+            catch
+            {
+                return new BadRequestResult();
+            }
         }
 
         public async Task<IActionResult> Delete(Guid id)
@@ -59,11 +66,11 @@ namespace User.Service.Repositories
             return new OkResult();
         }
 
-        public async Task<IEnumerable<UserEntity>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
             var json = await File.ReadAllTextAsync(jsonFile);
 
-            return JsonConvert.DeserializeObject<IEnumerable<UserEntity>>(json);
+            return new OkObjectResult(json);
         }
 
         public async Task<IActionResult> GetSingle(Guid id)
