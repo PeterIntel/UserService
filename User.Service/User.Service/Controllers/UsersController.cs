@@ -20,34 +20,37 @@ namespace User.Service.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<UserEntity> Get()
+        public async Task<IEnumerable<UserEntity>> Get()
         {
-            var users = _userRepository.GetAll();
+            var users = await _userRepository.GetAll();
 
             return users;
         }
 
         [HttpGet("{id}")]
-        public UserEntity Get(Guid id)
+        public async Task<IActionResult> Get(Guid id)
         {
-            var user = _userRepository.GetSingle(id);
+            var user = await _userRepository.GetSingle(id);
 
             return user;
         }
 
         [HttpPost]
-        public void Post([FromBody]UserEntity user)
+        public async Task<IActionResult> Post([FromBody]UserEntity user)
         {
+            return await _userRepository.Add(user);
         }
 
         [HttpPut("{id}")]
-        public void Put([FromBody]string user)
+        public async Task<IActionResult> Put([FromBody]UserEntity user)
         {
+            return await _userRepository.Update(user);
         }
 
         [HttpDelete("{id}")]
-        public void Delete(Guid id)
+        public async Task<IActionResult> Delete(Guid id)
         {
+            return await _userRepository.Delete(id);
         }
     }
 }
