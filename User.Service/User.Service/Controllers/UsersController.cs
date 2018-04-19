@@ -41,13 +41,13 @@ namespace User.Service.Controllers
             return await _userRepository.Add(user);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
         public async Task<IActionResult> Put([FromBody]UserEntity user)
         {
             return await _userRepository.Update(user);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete]
         public async Task<IActionResult> Delete(Guid id)
         {
             return await _userRepository.Delete(id);

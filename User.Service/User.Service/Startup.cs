@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using User.Service.CustomFilters;
 using User.Service.Entities;
 using User.Service.Repositories;
 
@@ -33,10 +34,12 @@ namespace User.Service
             }
             else if (Configuration["DATA_STORAGE"] == "local")
             {
-                services.AddScoped<IUserRepository, LocalUserRepository>();
+                services.AddSingleton<IUserRepository, LocalUserRepository>();
             }
 
-            services.AddMvc();
+            services.AddMvc(options => {
+                options.Filters.Add(new CustomJSONExceptionFilter());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

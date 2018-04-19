@@ -4,10 +4,13 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using User.Service.CustomExceptions;
 using User.Service.Entities;
+using User.Service.CustomExtensionMethods;
 
 namespace User.Service.Repositories
 {
@@ -15,19 +18,23 @@ namespace User.Service.Repositories
     {
         private readonly IHostingEnvironment _hostingEnvironment;
 
-        private readonly string jsonFile;
+        private readonly string _jsonFile;
+
+        private JArray _users;
 
         public LocalUserRepository(IHostingEnvironment hostingEnvironment)
         {
             _hostingEnvironment = hostingEnvironment;
-            jsonFile = Path.Combine(_hostingEnvironment.ContentRootPath, @"AppData\users.json");
+            _jsonFile = Path.Combine(_hostingEnvironment.ContentRootPath, @"AppData\users.json");
+            _users = ReadJArray();
         }
 
-        private async Task<JArray> ReadJArray()
+        private JArray ReadJArray()
         {
-            var json = await File.ReadAllTextAsync(jsonFile);
+            var json = File.ReadAllText(_jsonFile);
 
             JArray users = JArray.Parse(json);
+            var usesr = JsonConvert.DeserializeObject<List<UserEntity>>(json);
 
             return users;
         }
@@ -35,18 +42,34 @@ namespace User.Service.Repositories
         private async Task WriteJArray(JArray array)
         {
             string newJsonResult = JsonConvert.SerializeObject(array, Formatting.Indented);
-            await File.WriteAllTextAsync(jsonFile, newJsonResult);
+            await File.WriteAllTextAsync(_jsonFile, newJsonResult);
         }
 
         public async Task<IActionResult> Add(UserEntity user)
         {
             try
             {
-                var users = await ReadJArray();
+                user.ValidateModelState();
                 user.Id = Guid.NewGuid();
                 var newUser = JObject.FromObject(user);
-                users.Add(newUser);
-                await WriteJArray(users);
+                _users.Add(newUser);
+                await WriteJArray(_users);
+
+                return new OkResult();
+            }
+            catch(ModelStateErrorException ex)
+            {
+                return new BadRequestObjectResult(ex.ValidationResults);
+            }
+        }
+
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            try
+            {
+                var userToDeleted = _users.FirstOrException(user => user["Id"].ToString() == id.ToString());
+                _users.Remove(userToDeleted);
+                await WriteJArray(_users);
 
                 return new OkResult();
             }
@@ -56,40 +79,54 @@ namespace User.Service.Repositories
             }
         }
 
-        public async Task<IActionResult> Delete(Guid id)
-        {
-            var users = await ReadJArray();
-            var userToDeleted = users.FirstOrDefault(user => user["Id"].ToString() == id.ToString());
-            users.Remove(userToDeleted);
-            await WriteJArray(users);
-
-            return new OkResult();
-        }
-
         public async Task<IActionResult> GetAll()
         {
-            var json = await File.ReadAllTextAsync(jsonFile);
+            var json = await File.ReadAllTextAsync(_jsonFile);
 
-            return new OkObjectResult(json);
+            return new OkObjectResult(JArray.Parse(json));
         }
 
         public async Task<IActionResult> GetSingle(Guid id)
         {
-            var users = await ReadJArray();
-            var user = users.First(u => u["Id"].ToString() == id.ToString());
+            var user = _users.First(u => u["Id"].ToString() == id.ToString());
 
             return new OkObjectResult(user);
         }
 
         public async Task<IActionResult> Update(UserEntity user)
         {
-            JArray users = await ReadJArray();
-            var userToUpdate = users.First(u => u["Id"].ToString() == user.Id.ToString());
-            users.Remove(userToUpdate);
-            users.Add(JObject.FromObject(user));
-            await WriteJArray(users);
+            try
+            {
+                user.ValidateModelState();
 
-            return new OkResult();
+                var userToUpdate = _users.FirstOrException(u => u["Id"].ToString() == user.Id.ToString());
+                _users.Remove(userToUpdate);
+                _users.Add(JObject.FromObject(user));
+                await WriteJArray(_users);
+
+                return new OkResult();
+            }
+            catch (ModelStateErrorException ex)
+            {
+                return new BadRequestObjectResult(ex.ValidationResults);
+            }
+            catch(NotFoundIdException ex)
+            {
+                return new BadRequestObjectResult(ex.Message);
+            }
+            catch(InvalidOperationException ex)
+            {
+                if(user.Id == null)
+                {
+                    return new BadRequestObjectResult("Null Id Exception");
+                }
+
+                return new BadRequestObjectResult(ex.Message);
+            }
+            catch(Exception ex)
+            {
+                return new BadRequestObjectResult(ex.Message);
+            }
         }
     }
 }
