@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 using User.Service.CustomFilters;
 using User.Service.Entities;
 using User.Service.Repositories;
+using User.Service.Services;
 
 namespace User.Service
 {
@@ -36,6 +37,8 @@ namespace User.Service
             {
                 services.AddSingleton<IUserRepository, LocalUserRepository>();
             }
+            
+            services.AddScoped<IEntityService<UserEntity>, UserService>();
 
             services.AddMvc(options => {
                 options.Filters.Add(new CustomJSONExceptionFilter());

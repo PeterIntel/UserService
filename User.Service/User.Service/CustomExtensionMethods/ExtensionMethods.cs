@@ -1,8 +1,10 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using User.Service.CustomExceptions;
 using User.Service.Entities;
@@ -21,10 +23,20 @@ namespace User.Service.CustomExtensionMethods
             }
         }
 
-        public static JToken FirstOrException(this JArray array, Func<JToken, bool> predicate)
+        public static UserEntity FirstOrException(this IList<UserEntity> array, Guid id)
         {
+            var item = array.FirstOrDefault(entity => entity.Id.ToString() == id.ToString());
+            if (item == null)
+            {
+                throw new NotFoundIdException("Record with such Id was not found");
+            }
 
-            var item = array.First(predicate);
+            return item;
+        }
+
+        public static async Task<UserEntity> FirstOrExceptionAsync<TEntity>(this DbSet<UserEntity> set, Guid id)
+        {
+            var item = await set.FirstOrDefaultAsync(entity => entity.Id == id);
             if (item == null)
             {
                 throw new NotFoundIdException("Record with such Id was not found");

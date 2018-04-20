@@ -1,16 +1,14 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using User.Service.CustomExtensionMethods;
 using User.Service.Entities;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc;
 
 namespace User.Service.Repositories
 {
     public class RemoteUserRepository : IUserRepository
     {
-        //todo: Complete the implementation of this rep
         private readonly UserDbContext _context;
 
         public RemoteUserRepository(UserDbContext context)
@@ -18,49 +16,47 @@ namespace User.Service.Repositories
             _context = context;
         }
 
-        private async Task SaveAsync()
+        private Task SaveAsync()
         {
-            await _context.SaveChangesAsync();
+            return _context.SaveChangesAsync();
         }
 
-        public async Task<IActionResult> GetAll()
+        public Task<List<UserEntity>> GetAll()
         {
-            var users = await _context.Users.ToListAsync();
+            var users = _context.Users.ToListAsync();
 
-            return new OkObjectResult(users);
+            return users;
         }
 
-        public async Task<IActionResult> GetSingle(Guid id)
+        public Task<UserEntity> GetSingleById(Guid id)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
-
-            return new OkObjectResult(user);
+            return _context.Users.FirstOrExceptionAsync<UserEntity>(id);
         }
 
-        public async Task<IActionResult> Add(UserEntity user)
+        public Task Add(UserEntity user)
         {
             user.Id = Guid.NewGuid();
             _context.Users.Add(user);
-            await SaveAsync();
 
-            return new OkResult();
+            return SaveAsync();
         }
 
-        public async Task<IActionResult> Update(UserEntity user)
+        public async Task Update(UserEntity user)
         {
-            _context.Users.Update(user);
-            await SaveAsync();
+            var userToUpdate = await GetSingleById(user.Id);
+            userToUpdate.FirstName = user.FirstName;
+            userToUpdate.LastName = user.LastName;
+            _context.Users.Update(userToUpdate);
 
-            return new OkResult();
+            await SaveAsync();
         }
 
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task Delete(Guid id)
         {
-            var user = GetSingle(id);
-            //_context.Users.Remove(user.);
-            await SaveAsync();
+            var user = await GetSingleById(id);
+            _context.Users.Remove(user);
 
-            return new OkResult();
+            await SaveAsync();
         }
     }
 }

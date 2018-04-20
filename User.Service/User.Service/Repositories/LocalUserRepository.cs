@@ -1,132 +1,90 @@
 ﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using User.Service.CustomExceptions;
-using User.Service.Entities;
 using User.Service.CustomExtensionMethods;
+using User.Service.Entities;
 
 namespace User.Service.Repositories
 {
     public class LocalUserRepository : IUserRepository
     {
+        private readonly IConfiguration _configuration;
+
         private readonly IHostingEnvironment _hostingEnvironment;
 
         private readonly string _jsonFile;
 
-        private JArray _users;
+        private List<UserEntity> _users;
 
-        public LocalUserRepository(IHostingEnvironment hostingEnvironment)
+        public LocalUserRepository(IHostingEnvironment hostingEnvironment, IConfiguration configuration)
         {
             _hostingEnvironment = hostingEnvironment;
-            _jsonFile = Path.Combine(_hostingEnvironment.ContentRootPath, @"AppData\users.json");
-            _users = ReadJArray();
+            _configuration = configuration;
+            _jsonFile = Path.Combine(_hostingEnvironment.ContentRootPath, configuration["LocalStorageJsonFilePath"]);
+            _users = ReadUsers();
         }
 
-        private JArray ReadJArray()
+        private List<UserEntity> ReadUsers()
         {
-            var json = File.ReadAllText(_jsonFile);
+            List<UserEntity> users;
 
-            JArray users = JArray.Parse(json);
-            var usesr = JsonConvert.DeserializeObject<List<UserEntity>>(json);
+            try
+            {
+                var json = File.ReadAllText(_jsonFile);
+
+                users = JsonConvert.DeserializeObject<List<UserEntity>>(json);
+            }
+            catch (FileNotFoundException)
+            {
+                users = new List<UserEntity>();
+            }
 
             return users;
         }
 
-        private async Task WriteJArray(JArray array)
+        private Task WriteUsers(IList<UserEntity> array)
         {
             string newJsonResult = JsonConvert.SerializeObject(array, Formatting.Indented);
-            await File.WriteAllTextAsync(_jsonFile, newJsonResult);
+            return File.WriteAllTextAsync(_jsonFile, newJsonResult);
         }
 
-        public async Task<IActionResult> Add(UserEntity user)
+        public Task Add(UserEntity user)
         {
-            try
-            {
-                user.ValidateModelState();
-                user.Id = Guid.NewGuid();
-                var newUser = JObject.FromObject(user);
-                _users.Add(newUser);
-                await WriteJArray(_users);
+            user.ValidateModelState();
+            user.Id = Guid.NewGuid();
+            _users.Add(user);
 
-                return new OkResult();
-            }
-            catch(ModelStateErrorException ex)
-            {
-                return new BadRequestObjectResult(ex.ValidationResults);
-            }
+            return WriteUsers(_users);
         }
 
-        public async Task<IActionResult> Delete(Guid id)
+        public Task Delete(Guid id)
         {
-            try
-            {
-                var userToDeleted = _users.FirstOrException(user => user["Id"].ToString() == id.ToString());
-                _users.Remove(userToDeleted);
-                await WriteJArray(_users);
-
-                return new OkResult();
-            }
-            catch
-            {
-                return new BadRequestResult();
-            }
+            var userToDeleted = _users.FirstOrException(id);
+            _users.Remove(userToDeleted);
+            return WriteUsers(_users);
         }
 
-        public async Task<IActionResult> GetAll()
+        public async Task<List<UserEntity>> GetAll()
         {
-            var json = await File.ReadAllTextAsync(_jsonFile);
-
-            return new OkObjectResult(JArray.Parse(json));
+            return _users;
         }
 
-        public async Task<IActionResult> GetSingle(Guid id)
+        public async Task<UserEntity> GetSingleById(Guid id)
         {
-            var user = _users.First(u => u["Id"].ToString() == id.ToString());
-
-            return new OkObjectResult(user);
+            return _users.FirstOrException(id);
         }
 
-        public async Task<IActionResult> Update(UserEntity user)
+        public Task Update(UserEntity user)
         {
-            try
-            {
-                user.ValidateModelState();
+            var userToUpdate = _users.FirstOrException(user.Id);
+            _users.Remove(userToUpdate);
+            _users.Add(user);
 
-                var userToUpdate = _users.FirstOrException(u => u["Id"].ToString() == user.Id.ToString());
-                _users.Remove(userToUpdate);
-                _users.Add(JObject.FromObject(user));
-                await WriteJArray(_users);
-
-                return new OkResult();
-            }
-            catch (ModelStateErrorException ex)
-            {
-                return new BadRequestObjectResult(ex.ValidationResults);
-            }
-            catch(NotFoundIdException ex)
-            {
-                return new BadRequestObjectResult(ex.Message);
-            }
-            catch(InvalidOperationException ex)
-            {
-                if(user.Id == null)
-                {
-                    return new BadRequestObjectResult("Null Id Exception");
-                }
-
-                return new BadRequestObjectResult(ex.Message);
-            }
-            catch(Exception ex)
-            {
-                return new BadRequestObjectResult(ex.Message);
-            }
+            return WriteUsers(_users);
         }
     }
 }

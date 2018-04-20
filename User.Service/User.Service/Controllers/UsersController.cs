@@ -1,56 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using User.Service.Entities;
-using User.Service.Repositories;
+using User.Service.Services;
 
 namespace User.Service.Controllers
 {
     [Route("api/[controller]")]
     public class UsersController : Controller
     {
-        private IUserRepository _userRepository;
+        private IEntityService<UserEntity> _userService;
 
-        public UsersController(IUserRepository userRepositury)
+        public UsersController(IEntityService<UserEntity> userService)
         {
-            _userRepository = userRepositury;
+            _userService = userService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var users = await _userRepository.GetAll();
-
-            return users;
+            return await _userService.GetAll();
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
-            var user = await _userRepository.GetSingle(id);
-
-            return user;
+            return await _userService.GetSingleById(id);
         }
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody]UserEntity user)
         {
-            return await _userRepository.Add(user);
+            return await _userService.Add(user);
         }
 
         [HttpPut]
         public async Task<IActionResult> Put([FromBody]UserEntity user)
         {
-            return await _userRepository.Update(user);
+            return await _userService.Update(user);
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            return await _userRepository.Delete(id);
+            return await _userService.Delete(id);
         }
     }
 }

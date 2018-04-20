@@ -8,14 +8,14 @@ namespace User.Service.Repositories
 {
     public interface IUserRepository
     {
-        Task<IActionResult> Add(UserEntity user);
+        Task Add(UserEntity user);
 
-        Task<IActionResult> Delete(Guid id);
+        Task Delete(Guid id);
 
-        Task<IActionResult> GetAll();
+        Task<List<UserEntity>> GetAll();
 
-        Task<IActionResult> GetSingle(Guid id);
+        Task<UserEntity> GetSingleById(Guid id);
 
-        Task<IActionResult> Update(UserEntity user);
+        Task Update(UserEntity user);
     }
 }
