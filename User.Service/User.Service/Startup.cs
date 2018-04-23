@@ -37,6 +37,10 @@ namespace User.Service
             {
                 services.AddSingleton<IUserRepository, LocalUserRepository>();
             }
+            else
+            {
+                throw new Exception("No one instance for IUserRepository was instantiated");
+            }
             
             services.AddScoped<IEntityService<UserEntity>, UserService>();
 
