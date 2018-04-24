@@ -33,22 +33,24 @@ namespace User.Service.Repositories
             return _context.Users.FirstOrExceptionAsync<UserEntity>(id);
         }
 
-        public Task Add(UserEntity user)
+        public async Task<UserEntity> Add(UserEntity user)
         {
             user.Id = Guid.NewGuid();
             _context.Users.Add(user);
+            await SaveAsync();
 
-            return SaveAsync();
+            return await GetSingleById(user.Id);
         }
 
-        public async Task Update(UserEntity user)
+        public async Task<UserEntity> Update(UserEntity user)
         {
             var userToUpdate = await GetSingleById(user.Id);
             userToUpdate.FirstName = user.FirstName;
             userToUpdate.LastName = user.LastName;
             _context.Users.Update(userToUpdate);
-
             await SaveAsync();
+
+            return await GetSingleById(user.Id);
         }
 
         public async Task Delete(Guid id)

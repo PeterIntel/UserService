@@ -8,7 +8,7 @@ namespace User.Service.Repositories
 {
     public interface IUserRepository
     {
-        Task Add(UserEntity user);
+        Task<UserEntity> Add(UserEntity user);
 
         Task Delete(Guid id);
 
@@ -16,6 +16,6 @@ namespace User.Service.Repositories
 
         Task<UserEntity> GetSingleById(Guid id);
 
-        Task Update(UserEntity user);
+        Task<UserEntity> Update(UserEntity user);
     }
 }

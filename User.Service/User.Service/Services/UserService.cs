@@ -21,9 +21,9 @@ namespace User.Service.Services
         {
             try
             {
-                await _userRepository.Add(user);
+                var addedUser = await _userRepository.Add(user);
 
-                return new OkResult();
+                return new ObjectResult(addedUser) { StatusCode = 201 };
             }
             catch (ModelStateErrorException ex)
             {
@@ -42,7 +42,7 @@ namespace User.Service.Services
 
                 await _userRepository.Delete(id);
 
-                return new OkResult();
+                return new NoContentResult();
             }
             catch (NotValidOrEmptyIdException ex)
             {
@@ -95,9 +95,9 @@ namespace User.Service.Services
                     throw new NotValidOrEmptyIdException();
                 }
 
-                await _userRepository.Update(user);
+                var updatedUser = await _userRepository.Update(user);
 
-                return new OkResult();
+                return new OkObjectResult(updatedUser);
             }
             catch (ModelStateErrorException ex)
             {

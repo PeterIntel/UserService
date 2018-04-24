@@ -46,26 +46,28 @@ namespace User.Service.Repositories
             return users;
         }
 
-        private Task WriteUsers(IList<UserEntity> array)
+        private Task WriteUsersAsync(IList<UserEntity> array)
         {
             string newJsonResult = JsonConvert.SerializeObject(array, Formatting.Indented);
             return File.WriteAllTextAsync(_jsonFile, newJsonResult);
         }
 
-        public Task Add(UserEntity user)
+        public async Task<UserEntity> Add(UserEntity user)
         {
             user.ValidateModelState();
             user.Id = Guid.NewGuid();
             _users.Add(user);
+            await WriteUsersAsync(_users);
 
-            return WriteUsers(_users);
+            return await GetSingleById(user.Id);
         }
 
         public Task Delete(Guid id)
         {
             var userToDeleted = _users.FirstOrException(id);
             _users.Remove(userToDeleted);
-            return WriteUsers(_users);
+
+            return WriteUsersAsync(_users);
         }
 
         public async Task<List<UserEntity>> GetAll()
@@ -78,13 +80,14 @@ namespace User.Service.Repositories
             return _users.FirstOrException(id);
         }
 
-        public Task Update(UserEntity user)
+        public async Task<UserEntity> Update(UserEntity user)
         {
             var userToUpdate = _users.FirstOrException(user.Id);
             _users.Remove(userToUpdate);
             _users.Add(user);
+            await WriteUsersAsync(_users);
 
-            return WriteUsers(_users);
+            return await GetSingleById(user.Id);
         }
     }
 }
