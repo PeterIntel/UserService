@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
+using System.IO;
 using System.Threading.Tasks;
+using User.Service.CustomModelBinders;
 using User.Service.Entities;
 using User.Service.Services;
 
@@ -29,13 +31,13 @@ namespace User.Service.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody]UserEntity user)
+        public async Task<IActionResult> Post(UserEntity user)
         {
             return await _userService.Add(user);
         }
 
         [HttpPut]
-        public async Task<IActionResult> Put([FromBody]UserEntity user)
+        public async Task<IActionResult> Put(UserEntity user)
         {
             return await _userService.Update(user);
         }

@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using User.Service.CustomFilters;
+using User.Service.CustomModelBinders;
 using User.Service.Entities;
 using User.Service.Repositories;
 using User.Service.Services;
@@ -46,6 +47,7 @@ namespace User.Service
 
             services.AddMvc(options => {
                 options.Filters.Add(new CustomJSONExceptionFilter());
+                options.ModelBinderProviders.Insert(0, new ValidateModelBinderProvider());
             });
         }
 

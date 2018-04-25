@@ -1,8 +1,11 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.ComponentModel.DataAnnotations;
+using User.Service.CustomModelBinders;
 
 namespace User.Service.Entities
 {
+    [ModelBinder(BinderType = typeof(ValidateModelBinder))]
     public class UserEntity
     {
         public Guid Id { get; set; }
