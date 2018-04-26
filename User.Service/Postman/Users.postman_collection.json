@@ -1,0 +1,633 @@
+{
+	"id": "3244dec3-9bee-4415-a6c6-bd82cb4ba0aa",
+	"name": "Users",
+	"description": null,
+	"auth": null,
+	"events": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "476770d4-6c37-45cc-8285-f66e2dc23718",
+				"type": "text/javascript",
+				"exec": [
+					"function guid() {",
+					"  function s4() {",
+					"    return Math.floor((1 + Math.random()) * 0x10000)",
+					"      .toString(16)",
+					"      .substring(1);",
+					"  }",
+					"  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();",
+					"}",
+					"",
+					"pm.environment.set('randomUserId', guid());",
+					"pm.environment.set('incorrectUserId', 'bla-bla-bla');"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "757c675d-1f17-47ed-b704-7120cb846efb",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variables": null,
+	"order": [
+		"4f50e620-5e56-4424-bca6-045743d019c0",
+		"b0805db8-cb02-4cfc-8de3-7a89ffb12b30",
+		"2435bd6a-b64c-4b84-8167-9f20b3b3dad6",
+		"8b94c3e2-03ad-497d-a260-3fe936fd8b8e",
+		"d7881c04-f1d4-4c15-a4ba-caa12b64a9a7",
+		"17f15ba5-e493-45d5-8f81-f0fe3a1d6bbf",
+		"1b4e9027-ab85-4993-a513-c6e663a01147",
+		"f1fae76e-ae03-4014-885e-0caad3301916",
+		"f8a9027e-c043-42aa-a0b0-7a483422b5de",
+		"8410dc30-b7df-4ffb-83c7-cf9cf077e7a5",
+		"5c2a2537-6072-40ed-8c18-be95b5eb594b"
+	],
+	"folders_order": [],
+	"folders": [],
+	"requests": [
+		{
+			"id": "17f15ba5-e493-45d5-8f81-f0fe3a1d6bbf",
+			"name": "Update User with random userId",
+			"url": "http://{{host}}/api/users",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"method": "PUT",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "42dcdd9c-53eb-4764-865b-c09943cc1a32",
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"pm.test(\"Get status 400 when updating user with non-existet Id\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						]
+					}
+				}
+			],
+			"folder": null,
+			"rawModeData": "{\n\t\"id\": \"{{randomUserId}}\",\n    \"firstName\": \"{{userFirstName}}\",\n    \"lastName\": \"{{userLastName}}\"\n}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "1b4e9027-ab85-4993-a513-c6e663a01147",
+			"name": "Get User when incorrect userId",
+			"url": "http://{{host}}/api/users/{{incorreUserId}}",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b2ad766b-2bb6-431f-8157-1b67b0db9d83",
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"pm.test(\"Get status 400 when getting user with incorrect Id\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						]
+					}
+				}
+			],
+			"folder": null,
+			"rawModeData": "",
+			"headers": "",
+			"pathVariables": {}
+		},
+		{
+			"id": "2435bd6a-b64c-4b84-8167-9f20b3b3dad6",
+			"name": "Get Users",
+			"url": "http://{{host}}/api/users/",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f1da2ffc-9d94-49c0-8aba-2a3cdd1b5a0e",
+						"type": "text/javascript",
+						"exec": [
+							"const users = pm.response.json();",
+							"",
+							"let usersSchema = {",
+							"    \"type\": \"array\",",
+							"    \"items\":",
+							"    {",
+							"        \"required\": [\"id\", \"firstName\", \"lastName\"],",
+							"        \"properties\":{",
+							"            \"id\":{",
+							"                \"type\": \"string\",",
+							"                \"pattern\": \"^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\"",
+							"            },",
+							"            \"firstName\": {",
+							"                \"type\": \"string\"",
+							"            },",
+							"            \"lastName\":{",
+							"                \"type\": \"string\"",
+							"            }",
+							"        }",
+							"    }",
+							"};",
+							"",
+							"pm.test(\"All users should have a fiest name\", function(){",
+							"    pm.expect(users.every(user => {",
+							"        return user.firstName !== undefined;",
+							"    })).to.eql(true);",
+							"})",
+							"",
+							"pm.test(\"All users should have a last name\", function(){",
+							"    pm.expect(users.every(user => {",
+							"        return user.lastName !== undefined;",
+							"    })).to.eql(true);",
+							"})",
+							"",
+							"pm.test(\"All users should have an id\", function(){",
+							"    pm.expect(users.every(user => {",
+							"        return user.id !== undefined;",
+							"    })).to.eql(true);",
+							"})",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Users' schema corresponds to predifined one\", function() {",
+							"  pm.expect(tv4.validate(users, usersSchema)).to.be.true;",
+							"});"
+						]
+					}
+				}
+			],
+			"folder": null,
+			"rawModeData": "{\n\t\"id\": \"7bc8462d-9e2c-4ab7-a3c8-20b7b06e92aa\",\n    \"firstName\": \"Peter\",\n    \"lastName\": \"Val\"\n}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "4f50e620-5e56-4424-bca6-045743d019c0",
+			"name": "Create User",
+			"url": "http://{{host}}/api/users/",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"method": "POST",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9bee44f2-c976-4a2e-a34b-5b502bed8d82",
+						"type": "text/javascript",
+						"exec": [
+							"var userSchema = {",
+							"    \"required\": [\"id\", \"firstName\", \"lastName\"],",
+							"    \"properties\":{",
+							"        \"id\":{",
+							"            \"type\": \"string\",",
+							"            \"pattern\": \"^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\"",
+							"        },",
+							"        \"firstName\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"lastName\":{",
+							"            \"type\": \"string\"",
+							"        }",
+							"    }",
+							"};",
+							"",
+							"let user = pm.response.json();",
+							"pm.environment.set(\"userId\", user.id);",
+							"",
+							"pm.test(\"Status code can't be 400\", function () {",
+							"    pm.response.status != 400;",
+							"});",
+							"",
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(\"Created\");",
+							"});",
+							"",
+							"pm.test(\"Added user should have a fiest name\", function(){",
+							"    pm.expect(user[\"firstName\"] !== undefined).to.eql(true);",
+							"})",
+							"",
+							"pm.test(\"Added user's'fiest name can't be undefined\", function(){",
+							"    pm.expect(user[\"firstName\"] === undefined).to.eql(false);",
+							"})",
+							"",
+							"pm.test(\"Added user should have a last name\", function(){",
+							"    pm.expect(user[\"lastName\"] !== undefined).to.eql(true);",
+							"})",
+							"",
+							"pm.test(\"Added user's'last name can't be undefined\", function(){",
+							"    pm.expect(user[\"lastName\"] === undefined).to.eql(false);",
+							"})",
+							"",
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([201,202]);",
+							"});",
+							"",
+							"pm.test(\"Not successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([201,202]) ;",
+							"});",
+							"",
+							"pm.test('Schema is valid', function() {",
+							"  pm.expect(tv4.validate(user, userSchema)).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Body contains firstName and lastName\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"firstName\").include(\"lastName\");",
+							"});",
+							"",
+							"pm.test(\"Body doesn't contain id\", function () {",
+							"    pm.expect(pm.request.body.raw).to.be.an('string').that.does.not.include(\"id\");",
+							"});",
+							"",
+							"",
+							"pm.test(\"Test added user's lastName\", function () {",
+							"    pm.expect(user.lastName).to.eql(pm.environment.get('userLastNameToAdd'));",
+							"});",
+							"",
+							"pm.test(\"Test added user's firstName\", function () {",
+							"    pm.expect(user.firstName).to.eql(pm.environment.get('userFirstNameToAdd'));",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([201,202]);",
+							"});"
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "bb5b9bd6-480d-4418-ac4f-3b692db49210",
+						"type": "text/javascript",
+						"exec": [
+							"pm.environment.set(\"userFirstNameToAdd\", \"Valik\");",
+							"",
+							"pm.environment.set(\"userLastNameToAdd\", \"Scomorocha\");"
+						]
+					}
+				}
+			],
+			"folder": null,
+			"rawModeData": "    {\n        \"firstName\": \"{{userFirstNameToAdd}}\",\n        \"lastName\": \"{{userLastNameToAdd}}\"\n    }",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "5c2a2537-6072-40ed-8c18-be95b5eb594b",
+			"name": "Get deleted user",
+			"url": "http://{{host}}/api/users/{{userId}}",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "dcbbbe2d-5f45-4396-8688-ec1077b7d4c2",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Get status 400 when getting user with non-existet Id', function(){",
+							"   pm.response.to.have.status(400); ",
+							"});"
+						]
+					}
+				}
+			],
+			"folder": null,
+			"rawModeData": "{\n\t\"id\": \"7bc8462d-9e2c-4ab7-a3c8-20b7b06e92aa\",\n    \"firstName\": \"Peter\",\n    \"lastName\": \"Val\"\n}",
+			"headers": "",
+			"pathVariables": {}
+		},
+		{
+			"id": "8410dc30-b7df-4ffb-83c7-cf9cf077e7a5",
+			"name": "Delete User successfully",
+			"url": "http://{{host}}/api/users/{{userId}}/",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [],
+			"method": "DELETE",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "073a53a1-0a8d-4d8d-b374-1b66fa1a4415",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						]
+					}
+				}
+			],
+			"folder": null,
+			"rawModeData": "",
+			"headers": "",
+			"pathVariables": {}
+		},
+		{
+			"id": "8b94c3e2-03ad-497d-a260-3fe936fd8b8e",
+			"name": "Get User",
+			"url": "http://{{host}}/api/users/{{userId}}",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "195a3f1c-e5f9-4e27-baee-b397ade34716",
+						"type": "text/javascript",
+						"exec": [
+							"let user = pm.response.json();",
+							"",
+							"var userSchema = {",
+							"    \"required\": [\"id\", \"firstName\", \"lastName\"],",
+							"    \"properties\":{",
+							"        \"id\":{",
+							"            \"type\": \"string\",",
+							"            \"pattern\": \"^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\"",
+							"        },",
+							"        \"firstName\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"lastName\":{",
+							"            \"type\": \"string\"",
+							"        }",
+							"    }",
+							"};",
+							"",
+							"pm.test(\"User should have a fiest name\", function(){",
+							"    pm.expect(user.firstName !== undefined).to.eql(true);",
+							"})",
+							"",
+							"pm.test(\"All users should have a last name\", function(){",
+							"    pm.expect(user.lastName !== undefined).to.eql(true);",
+							"})",
+							"",
+							"pm.test(\"User should have an id\", function(){",
+							"    pm.expect(user.id !== undefined).to.eql(true);",
+							"})",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"User's schema corresponds to predifined one\", function() {",
+							"  pm.expect(tv4.validate(user, userSchema)).to.be.true;",
+							"});"
+						]
+					}
+				}
+			],
+			"folder": null,
+			"rawModeData": "{\n\t\"id\": \"7bc8462d-9e2c-4ab7-a3c8-20b7b06e92aa\",\n    \"firstName\": \"Peter\",\n    \"lastName\": \"Val\"\n}",
+			"headers": "",
+			"pathVariables": {}
+		},
+		{
+			"id": "b0805db8-cb02-4cfc-8de3-7a89ffb12b30",
+			"name": "Update User",
+			"url": "http://{{host}}/api/users",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"method": "PUT",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "febcea53-2cd5-4ceb-930c-b87ce0646109",
+						"type": "text/javascript",
+						"exec": [
+							"pm.environment.set(\"userFirstName\", \"Alex\");",
+							"",
+							"pm.environment.set(\"userLastName\", \"Ivanow\");"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "5deb5ebf-16bf-4034-a03b-ff17c5c8983e",
+						"type": "text/javascript",
+						"exec": [
+							"let user = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Test updated user's lastName\", function () {",
+							"    pm.expect(user.lastName).to.eql(pm.environment.get('userLastName'));",
+							"});",
+							"",
+							"pm.test(\"Test updated user's firstName\", function () {",
+							"    pm.expect(user.firstName).to.eql(pm.environment.get('userFirstName'));",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});"
+						]
+					}
+				}
+			],
+			"folder": null,
+			"rawModeData": "{\n\t\"id\": \"{{userId}}\",\n    \"firstName\": \"{{userFirstName}}\",\n    \"lastName\": \"{{userLastName}}\"\n}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "d7881c04-f1d4-4c15-a4ba-caa12b64a9a7",
+			"name": "Update User when incorrect userId",
+			"url": "http://{{host}}/api/users",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"method": "PUT",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9f78817b-e226-4515-b51d-c6916940f6e9",
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"pm.test(\"Get status 400 when updating user with incorrect Id\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						]
+					}
+				}
+			],
+			"folder": null,
+			"rawModeData": "{\n\t\"id\": \"{{incorreUserId}}\",\n    \"firstName\": \"{{userFirstName}}\",\n    \"lastName\": \"{{userLastName}}\"\n}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "f1fae76e-ae03-4014-885e-0caad3301916",
+			"name": "Delete User when incorrect userId",
+			"url": "http://{{host}}/api/users/{{incorreUserId}}",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"method": "DELETE",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "99f29812-a7d6-4f2a-a6da-86a8f81c9398",
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"pm.test(\"Get status 400 when deleting user with incorrect Id\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						]
+					}
+				}
+			],
+			"folder": null,
+			"rawModeData": "",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "f8a9027e-c043-42aa-a0b0-7a483422b5de",
+			"name": "Delete User with random userId",
+			"url": "http://{{host}}/api/users/{{randomUserId}}/",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [],
+			"method": "DELETE",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d945f009-1c53-4aab-9889-62eb625f6245",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Get status 400 when deleting user with non-existet Id', function(){",
+							"   pm.response.to.have.status(400); ",
+							"});"
+						]
+					}
+				}
+			],
+			"folder": null,
+			"rawModeData": "",
+			"headers": "",
+			"pathVariables": {}
+		}
+	]
+}
