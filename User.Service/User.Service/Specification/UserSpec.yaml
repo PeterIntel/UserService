@@ -1,0 +1,118 @@
+swagger: "2.0"
+info:
+  description: "This is sample of User server"
+  version: "1.0.0"
+  title: "User Service"
+  contact:
+    email: "shutka.intel@gmail.com"
+host: "localhost:60509"
+basePath: "/api"
+schemes:
+- "http"
+paths:
+  /users:
+    get:
+      tags:
+      - "user"
+      summary: "Gets all users"
+      description: ""
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "Id is not valid or empty or Record with such Id was not found"
+    post:
+      tags:
+      - "user"
+      summary: "Adds new user to the store"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "User object that needs to be added to the store"
+        required: true
+        schema:
+              $ref: "#/definitions/User"
+      responses:
+        400:
+          description: "The LastName field is required or  The FirstName field is required"
+        201:
+          description: "User is created"
+    put:
+      tags:
+      - "user"
+      summary: "Updates an existing user"
+      description: ""
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "User object that needs to be updated at the store"
+        required: true
+        schema:
+              $ref: "#/definitions/User"
+      responses:
+        400:
+          description: "The LastName field is required or  The FirstName field is required or Id is not valid or empty or Record with such Id was not found"
+        200:
+          description: "User is successfully updated"
+  /users/{userId}:
+    get:
+      tags:
+      - "user"
+      summary: "Finds user by ID"
+      description: "Returns a single user"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "path"
+        description: "ID of user to return"
+        required: true
+        type: "string"
+        format: "guid"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "Id is not valid or empty or Record with such Id was not found"
+    delete:
+      tags:
+      - "user"
+      summary: "Deletes a user"
+      description: ""
+      parameters:
+      - name: "userId"
+        in: "path"
+        description: "User id to delete"
+        required: true
+        type: "string"
+        format: "guid"
+      responses:
+        400:
+          description: "Id is not valid or empty or Record with such Id was not found"
+        204:
+          description: "User was successfully deleted"
+definitions:
+  User:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "guid"
+        description: "User's unique id"
+        example: "b0732c15-017d-1b7d-dfe7-157233308957"
+      firstName:
+        type: "string"
+        example: "Alex"
+      lastName:
+        type: "string"
+        example: "Skomorocha"
