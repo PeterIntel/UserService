@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Postman\NewmanConfigForPowerShell.ps1" />
+    <Content Include="Postman\NewmanConfigForPowerShell.ps1" />
   </ItemGroup>
 
   <ItemGroup>
