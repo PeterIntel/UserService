@@ -1,11 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using User.Service.CustomExceptions;
 using User.Service.Entities;
 
 namespace User.Service.CustomModelBinders

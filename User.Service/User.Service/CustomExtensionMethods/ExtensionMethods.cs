@@ -1,10 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using User.Service.CustomExceptions;
 using User.Service.Entities;
