@@ -21,6 +21,7 @@ namespace User.Service.Services
         {
             try
             {
+                user.ValidateModelState();
                 var addedUser = await _userRepository.Add(user);
 
                 return new ObjectResult(addedUser) { StatusCode = 201 };

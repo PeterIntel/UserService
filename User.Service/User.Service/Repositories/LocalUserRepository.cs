@@ -54,7 +54,6 @@ namespace User.Service.Repositories
 
         public async Task<UserEntity> Add(UserEntity user)
         {
-            user.ValidateModelState();
             user.Id = Guid.NewGuid();
             _users.Add(user);
             await WriteUsersAsync(_users);
