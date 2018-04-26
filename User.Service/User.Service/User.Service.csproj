@@ -5,6 +5,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Postman\NewmanConfigForNodeJS.js" />
+    <None Remove="Postman\NewmanConfigForPowerShell.ps1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Postman\NewmanConfigForPowerShell.ps1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Postman\NewmanConfigForNodeJS.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
