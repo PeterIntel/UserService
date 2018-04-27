@@ -13,7 +13,7 @@ $sourceCodeRepository = "https://github.com/PeterIntel/UserService.git"
 $postmanCollection = ".\UserService\User.Service\User.Service\Postman\Users.postman_collection.json"
 $postmanEnvironment = ".\UserService\User.Service\User.Service\Postman\Dev.postman_environment.json"
 $dotnetWorkingDirectory = ".\UserService\User.Service\User.Service"
-$newmanReportFile = "newman_report.json"
+$newmanReportFile = "..\TestResults\newman_report.json"
 
 $env:ASPNETCORE_URLS = "http://localhost:$port"
 git clone $sourceCodeRepository
