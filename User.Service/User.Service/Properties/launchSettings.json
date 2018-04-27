@@ -26,7 +26,7 @@
       "applicationUrl": "http://localhost:60509/"
     },
     "LocalStorage": {
-      "commandName": "IISExpress",
+      "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "api/users",
       "environmentVariables": {
